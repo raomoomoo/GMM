@@ -9,4 +9,4 @@
 !          regarding the largest component sphere in an aggregate
 !  an example of "gmm01f.par":   parameter (nLp=100,np=20)
 !-----------------------------------------------------------------------
-parameter (nLp=6000,np=20)
+parameter (nLp=100,np=20)

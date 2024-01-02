@@ -23,6 +23,19 @@ def get_user_input():
 #remaining monomers are added to the first layer something to potentially think about ?
     return n_m, r_m, layers
 
+#def get_wavelength():
+#    while True:  # ask for wavelength
+#        try:
+#            w = input('Enter the wavelength in nm (default 870): ')
+#            if w == '':
+#                w = 870  # default value if user just presses Enter
+#            else:
+#                w = float(w)
+#        except ValueError:
+#            print('You must enter a valid number or press Enter for the default value.')
+#        else:
+#            break
+#    return w / 1000  # return wavelength in um
 
 #def get_user_input():
 #    while True:  # choose monomer size
@@ -70,9 +83,11 @@ def get_user_input():
 
 def initialize_output_file(total_particles, l, r_c, Re, Im):
     Wavelength = 870/ 1000
-    Re = 3.4080000000000004
-    Im = 0.02024772462765312
-    
+#    Re = 3.4080000000000004
+#    Im = 0.02024772462765312
+# to ignore the central sphere we make it a vaccum 
+    Re = 1
+    Im = 0   
     save_path = os.path.expanduser('~/runs/Agg_models/input')
     name_of_file = 'aggregate_NIR' + str(total_particles) + '_' + str(l)
     completeName = os.path.join(save_path, name_of_file + ".k")
@@ -172,11 +187,26 @@ def total_monomer_surface_area(n_monomers, r_m):
     return n_monomers * 4 * np.pi * r_m ** 2
 
 
+def extrapolate_refractive_index(wavelength):
+    # Read in the data from the file
+    data = pd.read_csv('draine_optics.dat', header=None, delimiter=r"\s+", engine='python')
+    data.columns = ['Wav', 'Real', 'Img']
+
+    f = interpolate.interp1d(np.log(data.Wav), np.log(data.Img), fill_value='extrapolate')
+    g = interpolate.interp1d(np.log(data.Wav), np.log(data.Real), fill_value='extrapolate')
+
+    im = np.exp(f(np.log(wavelength)))
+    rel = np.exp(g(np.log(wavelength)))
+    
+    return rel, im
+
 if __name__ == '__main__':
 
 
     def main():
         r_mm, l, layers = get_user_input()
+#        Wavelength = get_wavelength()
+#        Re, Im = extrapolate_refractive_index(Wavelength)
         Re = 3.4080000000000004
         Im = 0.02024772462765312
         r_c = 1
